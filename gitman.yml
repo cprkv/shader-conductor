@@ -1,0 +1,52 @@
+location: deps
+
+sources:
+  - name: cxxopts
+    repo: https://github.com/jarro2783/cxxopts.git
+    params: --depth=1
+    rev: 3f2d70530219e09fe7e563f86126b0d3b228a60d
+
+  - name: DirectXShaderCompiler
+    repo: https://github.com/Microsoft/DirectXShaderCompiler.git
+    params: --depth=1
+    rev: 634a23537df7e85512437a4976f9bf9fcd095e18
+    scripts:
+      - git apply ../patch/0001-fixes.patch
+  
+  - name: SPIRV-Headers
+    repo: https://github.com/KhronosGroup/SPIRV-Headers.git
+    params: --depth=1
+    rev: 3fdabd0da2932c276b25b9b4a988ba134eba1aa6
+  
+  - name: SPIRV-Tools
+    repo: https://github.com/KhronosGroup/SPIRV-Tools.git
+    params: --depth=1
+    rev: c341f7a6cd441d05ca1347ee39f2f03f32225c59
+  
+  - name: SPIRV-Cross
+    repo: https://github.com/KhronosGroup/SPIRV-Cross.git
+    params: --depth=1
+    rev: 8891bd35120ca91c252a66ccfdc3f9a9d03c70cd
+
+  - name: googletest
+    repo: https://github.com/google/googletest.git
+    params: --depth=1
+    rev: dcc92d0ab6c4ce022162a23566d44f673251eee4
+
+groups:
+  - name: dev
+    members:
+      - cxxopts
+      - DirectXShaderCompiler
+      - SPIRV-Headers
+      - SPIRV-Tools
+      - SPIRV-Cross
+      - googletest
+  - name: lib
+    members:
+      - DirectXShaderCompiler
+      - SPIRV-Headers
+      - SPIRV-Tools
+      - SPIRV-Cross
+
+default_group: lib

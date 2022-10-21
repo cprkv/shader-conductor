@@ -1,0 +1,58 @@
+From 04fc3b3c73fc3956c721ba918930eacb5768fa2b Mon Sep 17 00:00:00 2001
+From: cprkv <mnz-rrh@ya.ru>
+Date: Fri, 21 Oct 2022 20:05:02 +0500
+Subject: [PATCH] fixes
+
+---
+ CMakeLists.txt                              | 5 -----
+ lib/HLSL/DxilContainerReflection.cpp        | 6 ++++--
+ tools/clang/tools/dxcompiler/CMakeLists.txt | 2 ++
+ 3 files changed, 6 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1e5e7ecbb..6443ac77d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -602,11 +602,6 @@ endif( ${CMAKE_SYSTEM_NAME} MATCHES SunOS )
+ # use export_executable_symbols(target).
+ set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
+ 
+-# enable warnings as errors for debug build
+-if (WIN32)
+-  SET(CMAKE_CXX_FLAGS_DEBUG  "${CMAKE_CXX_FLAGS_DEBUG} /WX")
+-endif (WIN32)
+-
+ include(AddLLVM)
+ include(TableGen)
+ 
+diff --git a/lib/HLSL/DxilContainerReflection.cpp b/lib/HLSL/DxilContainerReflection.cpp
+index 6465aa629..47a07a5ef 100644
+--- a/lib/HLSL/DxilContainerReflection.cpp
++++ b/lib/HLSL/DxilContainerReflection.cpp
+@@ -2318,8 +2318,10 @@ ID3D12ShaderReflectionConstantBuffer* DxilModuleReflection::_GetConstantBufferBy
+   }
+ 
+   auto it = m_CBsByName.find(Name);
+-  if (it == m_CBsByName.end())
+-    it = m_StructuredBufferCBsByName.find(Name);
++  if (it != m_CBsByName.end())
++    return m_CBs[it->second].get();
++
++  it = m_StructuredBufferCBsByName.find(Name);
+   if (it != m_StructuredBufferCBsByName.end())
+     return m_CBs[it->second].get();
+ 
+diff --git a/tools/clang/tools/dxcompiler/CMakeLists.txt b/tools/clang/tools/dxcompiler/CMakeLists.txt
+index 2af158f3e..b6a6aaf76 100644
+--- a/tools/clang/tools/dxcompiler/CMakeLists.txt
++++ b/tools/clang/tools/dxcompiler/CMakeLists.txt
+@@ -128,3 +128,5 @@ set_target_properties(dxcompiler
+   OUTPUT_NAME "dxcompiler"
+   VERSION ${LIBCLANG_LIBRARY_VERSION}
+   DEFINE_SYMBOL _CINDEX_LIB_)
++
++add_library(dxcompiler::dxcompiler ALIAS dxcompiler)
+\ No newline at end of file
+-- 
+2.37.2.windows.2
+
