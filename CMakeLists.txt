@@ -4,14 +4,13 @@
 cmake_minimum_required(VERSION 3.9)
 project(shader-conductor-project)
 
+if(PROJECT_IS_TOP_LEVEL)
+  set(SC_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}/bin")
+endif()
+
 set(SC_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SC_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-# if(PROJECT_IS_TOP_LEVEL)
-# 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SC_BUILD_DIR}/bin)
-# 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${SC_BUILD_DIR}/bin)
-# 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${SC_BUILD_DIR}/bin)
-# endif()
 
 function(sc_setup_compiler target)
   set_target_properties(${target} PROPERTIES
@@ -32,36 +31,42 @@ function(sc_setup_compiler target)
   endif()
 endfunction()
 
-
-add_subdirectory(deps)
-add_subdirectory(shader-conductor)
-add_subdirectory(shader-conductor-tests)
-add_subdirectory(shader-conductor-cmd)
-
-function(sc_set_target_output_variant target variant)
+function(sc_set_target_output_variant target variant dir)
   if(variant STREQUAL "")
     set_target_properties(${target} PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY E:/src/mine/vy-shader-conductor/build/bin
-      LIBRARY_OUTPUT_DIRECTORY E:/src/mine/vy-shader-conductor/build/bin
-      ARCHIVE_OUTPUT_DIRECTORY E:/src/mine/vy-shader-conductor/build/bin
+      RUNTIME_OUTPUT_DIRECTORY ${dir}
+      LIBRARY_OUTPUT_DIRECTORY ${dir}
+      ARCHIVE_OUTPUT_DIRECTORY ${dir}
     )
   else()
     set_target_properties(${target} PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY_${variant} E:/src/mine/vy-shader-conductor/build/bin
-      LIBRARY_OUTPUT_DIRECTORY_${variant} E:/src/mine/vy-shader-conductor/build/bin
-      ARCHIVE_OUTPUT_DIRECTORY_${variant} E:/src/mine/vy-shader-conductor/build/bin
+      RUNTIME_OUTPUT_DIRECTORY_${variant} ${dir}
+      LIBRARY_OUTPUT_DIRECTORY_${variant} ${dir}
+      ARCHIVE_OUTPUT_DIRECTORY_${variant} ${dir}
     )
   endif()
 endfunction()
 
-function(sc_set_target_output target)
-  sc_set_target_output_variant(${target} "")
-  sc_set_target_output_variant(${target} "DEBUG")
-  sc_set_target_output_variant(${target} "RELEASE")
-  sc_set_target_output_variant(${target} "RELWITHDEBINFO")
+function(sc_set_target_output target dir)
+  sc_set_target_output_variant(${target} "" ${dir})
+  sc_set_target_output_variant(${target} "DEBUG" ${dir})
+  sc_set_target_output_variant(${target} "RELEASE" ${dir})
+  sc_set_target_output_variant(${target} "RELWITHDEBINFO" ${dir})
 endfunction()
 
-sc_set_target_output(dxcompiler)
-sc_set_target_output(shader-conductor)
-sc_set_target_output(shader-conductor-tests)
-sc_set_target_output(shader-conductor-cmd)
+
+add_subdirectory(deps)
+sc_set_target_output(dxcompiler ${SC_BIN_DIR})
+
+add_subdirectory(shader-conductor)
+sc_set_target_output(shader-conductor ${SC_BIN_DIR})
+
+if(TARGET gtest)
+  add_subdirectory(shader-conductor-tests)
+  sc_set_target_output(shader-conductor-tests ${SC_BIN_DIR})
+endif()
+
+if(TARGET cxxopts)
+  add_subdirectory(shader-conductor-cmd)
+  sc_set_target_output(shader-conductor-cmd ${SC_BIN_DIR})
+endif()
